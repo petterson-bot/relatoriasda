@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDA 2026 · Dashboard Final · Conta 04</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#050A05;--c1:#0B130B;--c2:#111C11;--c3:#182818;--c4:#1F3A1F;--bd:#1A351A;--bd2:#256025;
+--n:#4AE54A;--n2:#30B030;--n3:#1A7A1A;--ng:rgba(74,229,74,.12);
+--r:#FF4444;--y:#FFD700;--o:#FF8C00;--b:#5BA8FF;--cy:#00E5CC;--p:#B57AFF;--pk:#FF6B9D;
+--w:#FFFFFF;--t1:#C8D8C8;--t2:#88A088;--t3:#506850}
+body{background:var(--bg);color:var(--w);font-family:'Sora',sans-serif;-webkit-font-smoothing:antialiased}
+.m{font-family:'DM Mono',monospace}
+
+.hero{padding:28px 20px;text-align:center;background:linear-gradient(180deg,#0D1A0D,var(--bg));border-bottom:1px solid var(--bd)}
+.hero h1{font-size:clamp(20px,3vw,32px);font-weight:800;letter-spacing:2px;color:var(--n)}
+.hero .s{color:var(--t2);font-size:12px;margin-top:4px}.hero .p{color:var(--y);font-weight:600;font-size:13px;margin-top:2px}
+
+.W{max-width:1440px;margin:0 auto;padding:0 14px}
+.tabs{display:flex;gap:5px;padding:14px 0;flex-wrap:wrap;justify-content:center}
+.T{padding:7px 16px;border-radius:20px;background:var(--c1);border:1px solid var(--bd);color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap}
+.T:hover{border-color:var(--n3);color:var(--w)}.T.on{background:var(--n);color:var(--bg);border-color:var(--n)}
+.P{display:none}.P.on{display:block}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin:14px 0}
+.k{background:var(--c1);border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:center}
+.k .l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:3px}
+.k .v{font-size:22px;font-weight:800}.k .v.g{color:var(--n)}.k .v.r{color:var(--r)}.k .v.y{color:var(--y)}.k .v.b{color:var(--b)}.k .v.c{color:var(--cy)}.k .v.p{color:var(--p)}.k .v.pk{color:var(--pk)}
+.k .ss{font-size:9px;color:var(--t3);margin-top:2px}
+
+.B{background:var(--c1);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:14px}
+.st{font-size:14px;font-weight:700;color:var(--n);padding-left:10px;border-left:3px solid var(--n);margin-bottom:12px}
+.cc{position:relative;height:320px;width:100%}.cc.lg{height:420px}.cc.xl{height:500px}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}.cc{height:260px!important}}
+
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:var(--c2);color:var(--n);padding:7px 8px;text-align:left;font-weight:700;white-space:nowrap;border-bottom:2px solid var(--bd2);font-size:10px;text-transform:uppercase;letter-spacing:.4px}
+td{padding:6px 8px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tr:nth-child(even){background:var(--c2)}tr:hover{background:rgba(74,229,74,.03)}
+
+.tg{display:inline-block;padding:2px 7px;border-radius:3px;font-size:9px;font-weight:700}
+.tg-g{background:rgba(74,229,74,.1);color:var(--n)}.tg-r{background:rgba(255,68,68,.1);color:var(--r)}
+.tg-y{background:rgba(255,215,0,.1);color:var(--y)}.tg-b{background:rgba(91,168,255,.1);color:var(--b)}
+.tg-p{background:rgba(181,122,255,.1);color:var(--p)}.tg-c{background:rgba(0,229,204,.1);color:var(--cy)}
+.tg-pk{background:rgba(255,107,157,.1);color:var(--pk)}
+
+.ins{background:var(--c1);border-radius:0 10px 10px 0;padding:14px 18px;margin-bottom:10px;border-left:4px solid var(--n)}
+.ins.w{border-left-color:var(--y)}.ins.d{border-left-color:var(--r)}.ins.i{border-left-color:var(--b)}
+.ins .it{font-weight:700;font-size:13px;margin-bottom:3px}.ins .id{color:var(--t1);font-size:12px;line-height:1.5}
+
+.ch{display:flex;align-items:center;gap:8px;margin:16px 0 10px;padding:8px 14px;background:var(--c2);border-radius:6px;border:1px solid var(--bd)}
+.ch .d{width:10px;height:10px;border-radius:50%}.ch h4{font-size:13px;font-weight:700}.ch .ct{font-size:11px;color:var(--t2);margin-left:auto}
+
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.B,.k,.ins{animation:fu .35s ease both}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>📊 SDA AO VIVO 2026 — RELATÓRIO COMPLETO</h1>
+  <div class="s">Conta 04 · act_377480853270622 · Samuel MKT · Dados API + Planilha Comercial</div>
+  <div class="p">📅 11/11/2025 — 16/03/2026 · 424 vendas reais · R$ 478.406 faturamento</div>
+</div>
+<div class="W">
+  <div class="tabs">
+    <div class="T on" onclick="go('vis')">📊 Visão Geral</div>
+    <div class="T" onclick="go('can')">🏪 Canais de Venda</div>
+    <div class="T" onclick="go('lot')">🏷️ Lotes</div>
+    <div class="T" onclick="go('cam')">📋 Campanhas</div>
+    <div class="T" onclick="go('fun')">🔄 Funil</div>
+    <div class="T" onclick="go('wa')">💬 WhatsApp</div>
+    <div class="T" onclick="go('clo')">👥 Closers</div>
+    <div class="T" onclick="go('act')">🎯 Ações</div>
+  </div>
+
+  <!-- ===== VISÃO GERAL ===== -->
+  <div class="P on" id="p-vis">
+    <div class="kpis">
+      <div class="k"><div class="l">Investido (Meta)</div><div class="v g">R$ 250.9K</div><div class="ss">25 campanhas</div></div>
+      <div class="k"><div class="l">Faturamento Real</div><div class="v y">R$ 478.4K</div><div class="ss">424 vendas planilha</div></div>
+      <div class="k"><div class="l">ROAS Geral</div><div class="v c">1.91x</div><div class="ss">Faturamento / Investido</div></div>
+      <div class="k"><div class="l">Vendas Tráfego</div><div class="v b">76</div><div class="ss">R$ 78.7K (16,5%)</div></div>
+      <div class="k"><div class="l">Vendas Comercial</div><div class="v pk">255</div><div class="ss">R$ 302K (63,1%)</div></div>
+      <div class="k"><div class="l">Vendas Orgânico</div><div class="v p">91</div><div class="ss">R$ 95.9K (20,1%)</div></div>
+      <div class="k"><div class="l">Ticket Médio</div><div class="v g">R$ 1.128</div><div class="ss">478.406 / 424</div></div>
+      <div class="k"><div class="l">Compras Pixel</div><div class="v r">130</div><div class="ss">vs 424 reais = 30,7%</div></div>
+    </div>
+    <div class="g2">
+      <div class="B"><div class="st">Receita por Canal de Origem</div><div class="cc"><canvas id="c1"></canvas></div></div>
+      <div class="B"><div class="st">Volume de Vendas por Canal</div><div class="cc"><canvas id="c2"></canvas></div></div>
+    </div>
+    <div class="B"><div class="st">Top 15 Sub-Canais por Receita</div><div class="cc lg"><canvas id="c3"></canvas></div></div>
+    <div class="ins i"><div class="it">📊 Insight Principal: 63% das vendas vêm do time Comercial</div><div class="id">
+      O time comercial é responsável por <strong>R$ 302K</strong> (63,1%) do faturamento. Tráfego direto (CPC) contribui com apenas <strong>R$ 78,7K</strong> (16,5%). Isso confirma que o Meta Ads funciona como <strong>gerador de leads</strong> que o time comercial converte, não como canal de venda direta. O ROAS real das campanhas de tráfego é <strong>0.31x</strong> se considerarmos apenas vendas com UTM CPC, mas sobe para <strong>1.91x</strong> considerando todo o ecossistema.
+    </div></div>
+  </div>
+
+  <!-- ===== CANAIS DE VENDA ===== -->
+  <div class="P" id="p-can">
+    <div class="st">Canais de Venda — Coluna Medium/UTM Source da Planilha</div>
+    <div class="ch"><div class="d" style="background:var(--pk)"></div><h4>COMERCIAL</h4><div class="ct">255 vendas · R$ 302.075 · 63,1%</div></div>
+    <div class="kpis">
+      <div class="k"><div class="l">Comercial-Nathalia</div><div class="v pk">R$ 50.9K</div><div class="ss">36 vendas</div></div>
+      <div class="k"><div class="l">Comercial-Juliana</div><div class="v pk">R$ 43.5K</div><div class="ss">35 vendas</div></div>
+      <div class="k"><div class="l">Comercial-Jalai</div><div class="v pk">R$ 43.0K</div><div class="ss">32 vendas</div></div>
+      <div class="k"><div class="l">Comercial-Junior</div><div class="v pk">R$ 41.0K</div><div class="ss">34 vendas</div></div>
+      <div class="k"><div class="l">WhatsOficial</div><div class="v y">R$ 51.4K</div><div class="ss">48 vendas · canal orgânico</div></div>
+      <div class="k"><div class="l">ZeRoberto</div><div class="v c">R$ 19.6K</div><div class="ss">28 vendas</div></div>
+    </div>
+
+    <div class="ch"><div class="d" style="background:var(--p)"></div><h4>ORGÂNICO</h4><div class="ct">91 vendas · R$ 95.921 · 20,1%</div></div>
+    <div class="kpis">
+      <div class="k"><div class="l">Instagram (ig)</div><div class="v p">R$ 43.5K</div><div class="ss">43 vendas</div></div>
+      <div class="k"><div class="l">WhatsApp orgânico</div><div class="v p">R$ 27.1K</div><div class="ss">25 vendas</div></div>
+      <div class="k"><div class="l">Email</div><div class="v p">R$ 11.7K</div><div class="ss">12 vendas</div></div>
+      <div class="k"><div class="l">IG Stories</div><div class="v p">R$ 6.6K</div><div class="ss">7 vendas</div></div>
+    </div>
+
+    <div class="ch"><div class="d" style="background:var(--b)"></div><h4>TRÁFEGO (CPC)</h4><div class="ct">76 vendas · R$ 78.716 · 16,5%</div></div>
+    <div class="kpis">
+      <div class="k"><div class="l">IG Stories (Meta)</div><div class="v b">R$ 25.3K</div><div class="ss">24 vendas</div></div>
+      <div class="k"><div class="l">IG Feed (Meta)</div><div class="v b">R$ 20.8K</div><div class="ss">19 vendas</div></div>
+      <div class="k"><div class="l">Google Search</div><div class="v b">R$ 14.6K</div><div class="ss">16 vendas</div></div>
+      <div class="k"><div class="l">IG Reels (Meta)</div><div class="v b">R$ 4.9K</div><div class="ss">4 vendas</div></div>
+    </div>
+
+    <div class="g2">
+      <div class="B"><div class="st">Receita: Comercial vs Orgânico vs Tráfego</div><div class="cc"><canvas id="c4"></canvas></div></div>
+      <div class="B"><div class="st">Sub-Canais Comerciais — Receita por Closer</div><div class="cc"><canvas id="c5"></canvas></div></div>
+    </div>
+    <div class="B"><div class="st">Composição de Vendas por Canal (%)</div><div class="cc"><canvas id="c6"></canvas></div></div>
+  </div>
+
+  <!-- ===== LOTES ===== -->
+  <div class="P" id="p-lot">
+    <div class="st">Vendas por Lote x Canal de Origem</div>
+    <div class="B"><div class="cc lg"><canvas id="c7"></canvas></div></div>
+    <div class="g2">
+      <div class="B"><div class="st">Faturamento por Lote</div><div class="cc"><canvas id="c8"></canvas></div></div>
+      <div class="B"><div class="st">Volume por Lote</div><div class="cc"><canvas id="c9"></canvas></div></div>
+    </div>
+    <div class="tw"><table><thead><tr><th>Lote</th><th>Vendas</th><th>Receita</th><th>Comercial</th><th>Tráfego</th><th>Orgânico</th><th>Ticket Médio</th></tr></thead><tbody>
+      <tr><td>Pré-Venda</td><td class="m">147</td><td class="m">R$ 148.702</td><td class="m">95 (R$ 98.1K)</td><td class="m">19 (R$ 16.8K)</td><td class="m">33 (R$ 33.8K)</td><td class="m">R$ 1.012</td></tr>
+      <tr><td>2ºLote Reabertura</td><td class="m">71</td><td class="m">R$ 83.497</td><td class="m">55 (R$ 67.2K)</td><td class="m">11 (R$ 11.2K)</td><td class="m">5 (R$ 5.1K)</td><td class="m">R$ 1.176</td></tr>
+      <tr><td>1ºLote</td><td class="m">63</td><td class="m">R$ 70.229</td><td class="m">36 (R$ 38.9K)</td><td class="m">9 (R$ 8.9K)</td><td class="m">16 (R$ 20.8K)</td><td class="m">R$ 1.115</td></tr>
+      <tr><td>3ºLote</td><td class="m">48</td><td class="m">R$ 64.403</td><td class="m">24 (R$ 35.8K)</td><td class="m">13 (R$ 16.9K)</td><td class="m">11 (R$ 11.7K)</td><td class="m">R$ 1.342</td></tr>
+      <tr><td>2ºLote</td><td class="m">42</td><td class="m">R$ 57.652</td><td class="m">21 (R$ 36.2K)</td><td class="m">9 (R$ 10.7K)</td><td class="m">12 (R$ 10.8K)</td><td class="m">R$ 1.373</td></tr>
+      <tr><td>Pré-venda Relâmpago</td><td class="m">53</td><td class="m">R$ 53.924</td><td class="m">28 (R$ 30.9K)</td><td class="m">12 (R$ 10.9K)</td><td class="m">13 (R$ 12.2K)</td><td class="m">R$ 1.018</td></tr>
+    </tbody></table></div>
+  </div>
+
+  <!-- ===== CAMPANHAS ===== -->
+  <div class="P" id="p-cam">
+    <div class="st">Todas as 25 Campanhas — API + Vendas Reais (Meta Ads)</div>
+    <div class="tw"><table><thead><tr><th>Campanha</th><th>Tipo</th><th>Lote</th><th>St</th><th>Gasto</th><th>Impr</th><th>CTR</th><th>CPC</th><th>Leads</th><th>Compras Pixel</th><th>Vendas Reais</th><th>Receita Real</th><th>ROAS</th></tr></thead><tbody id="tbl"></tbody></table></div>
+    <div class="B" style="margin-top:14px"><div class="st">Top Campanhas por Vendas Reais (Planilha)</div><div class="cc xl"><canvas id="c10"></canvas></div></div>
+  </div>
+
+  <!-- ===== FUNIL ===== -->
+  <div class="P" id="p-fun">
+    <div class="kpis">
+      <div class="k"><div class="l">Impressões</div><div class="v b">10.2M</div></div>
+      <div class="k"><div class="l">Cliques</div><div class="v c">144.8K</div></div>
+      <div class="k"><div class="l">Leads (Pixel)</div><div class="v y">6.027</div></div>
+      <div class="k"><div class="l">Checkouts</div><div class="v p">1.281</div></div>
+      <div class="k"><div class="l">Compras Pixel</div><div class="v r">373</div></div>
+      <div class="k"><div class="l">Vendas Reais</div><div class="v g">424</div></div>
+    </div>
+    <div class="B"><div class="st">Funil Completo — Impressão até Venda Real</div><div class="cc lg"><canvas id="c11"></canvas></div></div>
+    <div class="g2">
+      <div class="B"><div class="st">Taxas de Conversão por Etapa</div><div class="cc"><canvas id="c12"></canvas></div></div>
+      <div class="B"><div class="st">Custo por Etapa do Funil</div><div class="cc"><canvas id="c13"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- ===== WHATSAPP ===== -->
+  <div class="P" id="p-wa">
+    <div style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:4px 12px;border-radius:16px;font-size:12px;font-weight:700;margin-bottom:12px">💬 WhatsApp — API + Planilha</div>
+    <div class="kpis">
+      <div class="k"><div class="l">Gasto WA (API)</div><div class="v r">R$ 6.484</div><div class="ss">Campanha Meta</div></div>
+      <div class="k"><div class="l">Conexões MSG</div><div class="v y">214</div><div class="ss">CPA: R$ 30</div></div>
+      <div class="k"><div class="l">Compras Pixel WA</div><div class="v r">3</div><div class="ss">CPA: R$ 2.161</div></div>
+      <div class="k"><div class="l">Vendas WhatsOficial</div><div class="v g">48</div><div class="ss">R$ 51.353 (planilha)</div></div>
+      <div class="k"><div class="l">Vendas WA Orgânico</div><div class="v c">25</div><div class="ss">R$ 27.075 (planilha)</div></div>
+    </div>
+    <div class="g2">
+      <div class="B"><div class="st">Funil WA da Campanha Meta</div><div class="cc"><canvas id="c14"></canvas></div></div>
+      <div class="B"><div class="st">WA vs Checkout — CPA Pixel</div><div class="cc"><canvas id="c15"></canvas></div></div>
+    </div>
+    <div class="ins d"><div class="it">⚠️ Campanha WA Meta ≠ Vendas via WhatsApp</div><div class="id">
+      A campanha de WhatsApp no Meta Ads gastou <strong>R$ 6.484</strong> e gerou apenas <strong>3 compras pelo pixel</strong>. Porém, o canal "WhatsOficial" na planilha registra <strong>48 vendas (R$ 51.353)</strong> e "WhatsApp" mais <strong>25 vendas (R$ 27.075)</strong>.<br><br>
+      <strong>Interpretação:</strong> Essas vendas WhatsApp provavelmente vêm de múltiplas fontes (orgânico, listas de transmissão, link na bio), não exclusivamente da campanha Meta. A UTM tracking não está ligando a campanha Meta ao fechamento. O custo real por venda WA via Meta é <strong>R$ 2.161</strong> — inaceitável.
+    </div></div>
+  </div>
+
+  <!-- ===== CLOSERS ===== -->
+  <div class="P" id="p-clo">
+    <div class="st">Performance dos Closers (Time Comercial)</div>
+    <div class="kpis">
+      <div class="k"><div class="l">Nathalia</div><div class="v pk">R$ 50.9K</div><div class="ss">36 vendas · TM R$ 1.415</div></div>
+      <div class="k"><div class="l">Juliana</div><div class="v pk">R$ 43.5K</div><div class="ss">35 vendas · TM R$ 1.244</div></div>
+      <div class="k"><div class="l">Jalai</div><div class="v pk">R$ 43.0K</div><div class="ss">32 vendas · TM R$ 1.344</div></div>
+      <div class="k"><div class="l">Junior</div><div class="v pk">R$ 41.0K</div><div class="ss">34 vendas · TM R$ 1.207</div></div>
+      <div class="k"><div class="l">IA</div><div class="v c">R$ 15.4K</div><div class="ss">10 vendas · TM R$ 1.542</div></div>
+      <div class="k"><div class="l">Lizandra</div><div class="v p">R$ 8.0K</div><div class="ss">4 vendas · TM R$ 1.999</div></div>
+    </div>
+    <div class="g2">
+      <div class="B"><div class="st">Receita por Closer</div><div class="cc"><canvas id="c16"></canvas></div></div>
+      <div class="B"><div class="st">Volume de Vendas por Closer</div><div class="cc"><canvas id="c17"></canvas></div></div>
+    </div>
+    <div class="B"><div class="st">Ticket Médio por Closer (R$)</div><div class="cc"><canvas id="c18"></canvas></div></div>
+  </div>
+
+  <!-- ===== AÇÕES ===== -->
+  <div class="P" id="p-act">
+    <div class="st">🎯 Recomendações com Base nos Dados Reais</div>
+
+    <div class="ins" style="border-left-color:var(--cy)"><div class="it">🏆 #1 ESCALAR — Advantage CBO T04 (32 compras pixel / 8 vendas reais rastreadas)</div><div class="id">
+      CPA Pixel: R$ 310 · CTR 4,98% · R$ 9.926 investidos · 8 vendas reais confirmadas com UTM = <strong>R$ 8.476 receita real</strong> → <strong>ROAS real: 0.85x</strong><br>
+      Melhor performance do pixel e o algoritmo encontra compradores. Muitas vendas provavelmente não têm UTM (passam pelo comercial).<br>
+      <strong>→ Aumentar budget em 40%. Garantir UTM em todos os links.</strong>
+    </div></div>
+
+    <div class="ins" style="border-left-color:var(--n)"><div class="it">🏆 #2 MANTER — Checkout Quente ABO (37 compras pixel / ~20 vendas reais rastreadas)</div><div class="id">
+      CPA Pixel: R$ 627 · R$ 23.206 investidos · Vendas rastreadas com UTM totalizam ~R$ 22K em receita.<br>
+      <strong>→ Manter budget. Testar novos criativos para reduzir CPA.</strong>
+    </div></div>
+
+    <div class="ins w"><div class="it">⚡ REATIVAR — Form TesteQualificação (151 leads a R$ 5,00/CPL)</div><div class="id">
+      Melhor CPL absoluto da conta. Gera leads qualificados para o time comercial que converte 63% do faturamento.<br>
+      <strong>→ Reativar com R$ 100/dia. Alimentar o funil comercial.</strong>
+    </div></div>
+
+    <div class="ins d"><div class="it">🛑 PAUSAR — Visita Perfil Lembrete (R$ 7.451 → ZERO vendas)</div><div class="id">
+      1,25M impressões, zero conversões mensuráveis. Dinheiro puro desperdiçado.<br>
+      <strong>→ Pausar HOJE. Realocar R$ 240/dia.</strong>
+    </div></div>
+
+    <div class="ins d"><div class="it">🛑 REDUZIR — WhatsApp Meta (R$ 6.484 → 3 compras pixel)</div><div class="id">
+      CPA R$ 2.161 por compra. Mesmo considerando vendas não rastreadas, é o pior canal.<br>
+      <strong>→ Reduzir para R$ 30/dia ou pausar.</strong>
+    </div></div>
+
+    <div class="ins i"><div class="it">📊 AÇÃO CRÍTICA: Melhorar Rastreamento UTM</div><div class="id">
+      O pixel registra <strong>373 compras</strong>, a planilha tem <strong>424 vendas</strong>, mas apenas <strong>99 vendas têm UTM de campanha Meta</strong>. Isso significa que <strong>76% das vendas do time comercial não têm rastreamento de origem</strong>. Implementar UTM tracking no link de WhatsApp dos closers é prioridade absoluta para medir ROAS real.
+    </div></div>
+
+    <div class="B" style="margin-top:16px"><div class="st">Ranking: ROAS por Campanha (vendas reais com UTM)</div><div class="cc xl"><canvas id="c19"></canvas></div></div>
+  </div>
+</div>
+
+<script>
+Chart.defaults.color='#506850';Chart.defaults.borderColor='#1A351A';Chart.defaults.font.family="'DM Mono',monospace";Chart.defaults.font.size=10;
+const N='#4AE54A',R='#FF4444',Y='#FFD700',O='#FF8C00',B='#5BA8FF',C='#00E5CC',P='#B57AFF',PK='#FF6B9D';
+
+function go(id){document.querySelectorAll('.P').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.T').forEach(t=>t.classList.remove('on'));document.getElementById('p-'+id).classList.add('on');event.target.classList.add('on')}
+
+// ===== CAMPAIGN DATA (API) =====
+const D=[
+  {n:'Quente ABO T02',s:'Qnt.T02',t:'LEAD',l:'QUENTE',st:'A',sp:28642.89,im:1161292,cl:20100,ctr:1.73,cpc:1.43,ld:617,pu:10,rv:0,rqty:0},
+  {n:'Checkout Quente ABO',s:'CK.Qnt',t:'VENDA',l:'QUENTE',st:'A',sp:23206.76,im:401488,cl:5090,ctr:1.27,cpc:4.56,ld:16,pu:37,rv:22747,rqty:20},
+  {n:'Frio ABO T03',s:'Frio.T03',t:'LEAD',l:'FRIO',st:'A',sp:14977.39,im:618589,cl:16888,ctr:2.73,cpc:0.89,ld:786,pu:4,rv:4938,rqty:3},
+  {n:'Formulário Quente ABO',s:'Form.Qnt',t:'LEAD',l:'QUENTE',st:'A',sp:11413.39,im:346536,cl:4934,ctr:1.42,cpc:2.31,ld:773,pu:5,rv:1547,rqty:1},
+  {n:'Advantage CBO T04',s:'Adv.T04',t:'VENDA',l:'ADV.',st:'A',sp:9926.69,im:269563,cl:13426,ctr:4.98,cpc:0.74,ld:24,pu:32,rv:8476,rqty:8},
+  {n:'Visita Perfil',s:'VisPerfil',t:'TRÁF.',l:'LEMBR.',st:'A',sp:7451.78,im:1250425,cl:19840,ctr:1.59,cpc:0.38,ld:0,pu:0,rv:0,rqty:0},
+  {n:'CK Quente T02',s:'CK.QT02',t:'VENDA',l:'QUENTE',st:'P',sp:6968.74,im:150891,cl:2217,ctr:1.47,cpc:3.14,ld:5,pu:17,rv:0,rqty:0},
+  {n:'WhatsApp Quente',s:'WA.Qnt',t:'TRÁF.',l:'QUENTE',st:'A',sp:6484.80,im:111388,cl:1426,ctr:1.28,cpc:4.55,ld:6,pu:3,rv:0,rqty:0},
+  {n:'Frio ABO T06',s:'Frio.T06',t:'LEAD',l:'FRIO',st:'A',sp:5021.18,im:67729,cl:1833,ctr:2.71,cpc:2.74,ld:143,pu:1,rv:0,rqty:0},
+  {n:'Adv. Lista T05',s:'Adv.Lst',t:'VENDA',l:'QUENTE',st:'A',sp:3250.18,im:32720,cl:941,ctr:2.88,cpc:3.45,ld:3,pu:7,rv:4791,rqty:3},
+  {n:'Form TesteCriativo',s:'Form.Cr',t:'LEAD',l:'QUENTE',st:'A',sp:3129.94,im:119837,cl:2244,ctr:1.87,cpc:1.39,ld:445,pu:0,rv:897,rqty:1},
+  {n:'Alcance Esc.2',s:'Alc2',t:'ALC.',l:'ESCAS.',st:'P',sp:2953.67,im:1486038,cl:3201,ctr:0.22,cpc:0.92,ld:1,pu:1,rv:0,rqty:0},
+  {n:'CK Frio T03',s:'CK.FrT3',t:'VENDA',l:'FRIO',st:'P',sp:2900.32,im:153885,cl:2206,ctr:1.43,cpc:1.31,ld:1,pu:2,rv:1694,rqty:2},
+  {n:'Lead Quente MN001',s:'Ld.MN01',t:'LEAD',l:'QUENTE',st:'P',sp:2496.01,im:78795,cl:1378,ctr:1.75,cpc:1.81,ld:47,pu:3,rv:2694,rqty:2},
+  {n:'VIP-PLATINUM',s:'VIP',t:'VENDA',l:'VIP',st:'A',sp:1737.23,im:15745,cl:234,ctr:1.49,cpc:7.42,ld:0,pu:0,rv:0,rqty:0},
+  {n:'CK Frio LAL',s:'CK.LAL',t:'VENDA',l:'FRIO',st:'P',sp:1587.43,im:32121,cl:331,ctr:1.03,cpc:4.80,ld:3,pu:0,rv:0,rqty:0},
+  {n:'Lista Esp. Frio',s:'LE.Fr',t:'LEAD',l:'FRIO',st:'A',sp:1056.48,im:39081,cl:1234,ctr:3.16,cpc:0.86,ld:60,pu:0,rv:0,rqty:0},
+  {n:'CK Quente CBO T01',s:'CK.QT01',t:'VENDA',l:'QUENTE',st:'P',sp:1017.21,im:35481,cl:666,ctr:1.88,cpc:1.53,ld:1,pu:1,rv:0,rqty:0},
+  {n:'Lista Esp. Quente',s:'LE.Qnt',t:'LEAD',l:'QUENTE',st:'A',sp:939.35,im:47406,cl:1182,ctr:2.49,cpc:0.79,ld:31,pu:0,rv:20507,rqty:22},
+  {n:'CK Quente MN001',s:'CK.MN01',t:'VENDA',l:'QUENTE',st:'P',sp:906.20,im:21175,cl:145,ctr:0.68,cpc:6.25,ld:4,pu:2,rv:0,rqty:0},
+  {n:'Alcance Esc.1',s:'Alc1',t:'ALC.',l:'ESCAS.',st:'P',sp:886.97,im:296442,cl:1191,ctr:0.40,cpc:0.74,ld:0,pu:0,rv:0,rqty:0},
+  {n:'Form Qualificação',s:'Form.Q',t:'LEAD',l:'QUENTE',st:'P',sp:755.24,im:37996,cl:678,ctr:1.78,cpc:1.11,ld:151,pu:0,rv:0,rqty:0},
+  {n:'Lead Frio CBO',s:'Ld.FrCBO',t:'LEAD',l:'FRIO',st:'P',sp:351.11,im:18255,cl:167,ctr:0.91,cpc:2.10,ld:24,pu:0,rv:0,rqty:0},
+  {n:'Frio Geo ABO',s:'Fr.Geo',t:'LEAD',l:'FRIO',st:'P',sp:298.93,im:7798,cl:94,ctr:1.21,cpc:3.18,ld:2,pu:0,rv:0,rqty:0},
+  {n:'WA Pausada',s:'WA.P',t:'TRÁF.',l:'QUENTE',st:'P',sp:90.20,im:15102,cl:167,ctr:1.11,cpc:0.54,ld:0,pu:0,rv:0,rqty:0},
+];
+
+// TABLE
+const tb=document.getElementById('tbl');
+D.forEach(c=>{
+  const stC=c.st==='A'?'<span class="tg tg-g">A</span>':'<span class="tg tg-y">P</span>';
+  const roas=c.sp>0&&c.rv>0?(c.rv/c.sp).toFixed(2)+'x':'-';
+  const rc=c.rv>0&&(c.rv/c.sp)>=1?N:c.rv>0?O:R;
+  tb.innerHTML+=`<tr><td title="${c.n}">${c.s}</td><td><span class="tg tg-b">${c.t}</span></td><td><span class="tg tg-y">${c.l}</span></td><td>${stC}</td>
+  <td class="m">R$${Math.round(c.sp).toLocaleString()}</td><td class="m">${(c.im/1000).toFixed(0)}K</td><td class="m">${c.ctr}%</td><td class="m">R$${c.cpc.toFixed(2)}</td>
+  <td class="m">${c.ld}</td><td class="m">${c.pu}</td><td class="m" style="color:${c.rqty>0?N:R}">${c.rqty}</td><td class="m">${c.rv>0?'R$'+c.rv.toLocaleString():'-'}</td>
+  <td class="m" style="color:${rc}">${roas}</td></tr>`;
+});
+
+// CHARTS
+// c1 - Revenue by category
+new Chart(document.getElementById('c1'),{type:'doughnut',data:{labels:['COMERCIAL R$302K','ORGÂNICO R$96K','TRÁFEGO R$79K','OUTROS R$2K'],datasets:[{data:[302075,95921,78716,1694],backgroundColor:[PK,P,B,'#444'],borderColor:'#050A05',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{padding:10,boxWidth:12,font:{size:11}}}}}});
+
+// c2 - Volume by category  
+new Chart(document.getElementById('c2'),{type:'doughnut',data:{labels:['COMERCIAL 255','ORGÂNICO 91','TRÁFEGO 76','OUTROS 2'],datasets:[{data:[255,91,76,2],backgroundColor:[PK,P,B,'#444'],borderColor:'#050A05',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{padding:10,boxWidth:12,font:{size:11}}}}}});
+
+// c3 - Top sub-channels
+const subs=[{n:'WhatsOficial',v:51353,c:PK},{n:'Nathalia',v:50940,c:PK},{n:'Instagram(ig)',v:43465,c:P},{n:'Juliana',v:43535,c:PK},{n:'Jalai',v:43001,c:PK},{n:'Junior',v:41045,c:PK},{n:'WA Orgânico',v:27075,c:P},{n:'Traf.IG Stories',v:25278,c:B},{n:'Traf.IG Feed',v:20790,c:B},{n:'ZeRoberto',v:19609,c:PK},{n:'Comercial-IA',v:15417,c:PK},{n:'Google Search',v:14602,c:B},{n:'Email',v:11664,c:P},{n:'Lizandra',v:7994,c:PK},{n:'IG Stories Org',v:6579,c:P}];
+new Chart(document.getElementById('c3'),{type:'bar',data:{labels:subs.map(s=>s.n),datasets:[{data:subs.map(s=>s.v),backgroundColor:subs.map(s=>s.c),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'K'}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+// c4 - Revenue stacked
+new Chart(document.getElementById('c4'),{type:'bar',data:{labels:['COMERCIAL','ORGÂNICO','TRÁFEGO'],datasets:[{label:'Receita',data:[302075,95921,78716],backgroundColor:[PK,P,B],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'K'}},x:{grid:{display:false}}}}});
+
+// c5 - Closers
+const cls=[{n:'Nathalia',v:50940},{n:'Juliana',v:43535},{n:'Jalai',v:43001},{n:'Junior',v:41045},{n:'IA',v:15417},{n:'Lizandra',v:7994},{n:'JulioCesarBlack',v:6200},{n:'WhatsOficial',v:51353},{n:'DaniCastro',v:5435},{n:'ZeRoberto',v:19609}];
+cls.sort((a,b)=>b.v-a.v);
+new Chart(document.getElementById('c5'),{type:'bar',data:{labels:cls.map(c=>c.n),datasets:[{data:cls.map(c=>c.v),backgroundColor:cls.map((_,i)=>[PK,PK,PK,PK,Y,C,P,O,PK,PK][i]||PK),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'K'}},y:{grid:{display:false}}}}});
+
+// c6 - Composition %
+new Chart(document.getElementById('c6'),{type:'bar',data:{labels:['Vendas','Receita'],datasets:[
+  {label:'COMERCIAL',data:[60.1,63.1],backgroundColor:PK,borderRadius:4},
+  {label:'ORGÂNICO',data:[21.5,20.1],backgroundColor:P,borderRadius:4},
+  {label:'TRÁFEGO',data:[17.9,16.5],backgroundColor:B,borderRadius:4},
+  {label:'OUTROS',data:[0.5,0.4],backgroundColor:'#444',borderRadius:4}
+]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',scales:{x:{stacked:true,grid:{color:'#1A351A'},ticks:{callback:v=>v+'%'}},y:{stacked:true,grid:{display:false}}}}});
+
+// c7 - Lotes x Category stacked
+const lotes=['Pré-Venda','Pré-venda Rel.','1ºLote','2ºLote','2ºLote Reab.','3ºLote'];
+new Chart(document.getElementById('c7'),{type:'bar',data:{labels:lotes,datasets:[
+  {label:'COMERCIAL',data:[98114,30855,38860,36215,67195,35825],backgroundColor:PK,borderRadius:4},
+  {label:'ORGÂNICO',data:[33798,12208,20752,10764,5135,11717],backgroundColor:P,borderRadius:4},
+  {label:'TRÁFEGO',data:[16790,10861,8923,10673,11167,16861],backgroundColor:B,borderRadius:4}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'K'}}}}});
+
+// c8 - Revenue by lote
+new Chart(document.getElementById('c8'),{type:'bar',data:{labels:lotes,datasets:[{data:[148702,53924,70229,57652,83497,64403],backgroundColor:[N,N+'BB',Y,O,B,P],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'K'}},x:{grid:{display:false}}}}});
+
+// c9 - Volume by lote
+new Chart(document.getElementById('c9'),{type:'bar',data:{labels:lotes,datasets:[{data:[147,53,63,42,71,48],backgroundColor:[N,N+'BB',Y,O,B,P],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1A351A'}},x:{grid:{display:false}}}}});
+
+// c10 - Top campaigns by real sales
+const topR=D.filter(c=>c.rqty>0).sort((a,b)=>b.rv-a.rv);
+new Chart(document.getElementById('c10'),{type:'bar',data:{labels:topR.map(c=>c.s+' ('+c.rqty+'x)'),datasets:[{label:'Receita Real',data:topR.map(c=>c.rv),backgroundColor:topR.map(c=>c.rv/c.sp>=1?N:c.rv/c.sp>=0.5?Y:O),borderRadius:4},{label:'Gasto',data:topR.map(c=>c.sp),backgroundColor:R+'55',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',scales:{x:{grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'K'}},y:{grid:{display:false}}}}});
+
+// c11 - Full funnel
+new Chart(document.getElementById('c11'),{type:'bar',data:{labels:['Impressões','Cliques','Leads','Checkouts','Compras Pixel','Vendas Reais'],datasets:[{data:[10163299,144810,6027,1281,373,424],backgroundColor:[N+'22',N+'44',N+'66',N+'88',N+'BB',N],borderColor:N,borderWidth:1,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.parsed.y.toLocaleString()}}},scales:{y:{type:'logarithmic',grid:{color:'#1A351A'}},x:{grid:{display:false}}}}});
+
+// c12 - Rates
+new Chart(document.getElementById('c12'),{type:'bar',data:{labels:['Impr→Click','Click→Lead','Lead→CK','CK→Compra Pixel','Pixel→Real'],datasets:[{data:[1.42,4.16,21.25,29.12,113.67],backgroundColor:[C,Y,O,R,N],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1A351A'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}}});
+
+// c13 - Cost per step
+new Chart(document.getElementById('c13'),{type:'bar',data:{labels:['CPM','CPC','CPL','CPA CK','CPA Pixel','CPA Real'],datasets:[{data:[24.69,1.73,41.63,195.87,672.68,591.77],backgroundColor:[N+'55',N+'77',Y,O,R,N],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{type:'logarithmic',grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+v}},x:{grid:{display:false}}}}});
+
+// c14 - WA funnel
+new Chart(document.getElementById('c14'),{type:'bar',data:{labels:['Impressões','Cliques','Conexão','Conversa','Reply','MSG2+','Compra'],datasets:[{data:[111388,1426,214,174,143,89,3],backgroundColor:['#25D36620','#25D36640','#25D36660','#25D36680','#25D366A0','#25D366C0','#25D366'],borderColor:'#25D366',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{type:'logarithmic',grid:{color:'#1A351A'}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+
+// c15 - WA vs CK CPA
+new Chart(document.getElementById('c15'),{type:'bar',data:{labels:['WA Meta','CK Quente','Adv CBO T04','Adv Lista'],datasets:[{data:[2161,627,310,464],backgroundColor:[R,Y,N,B],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+v}},x:{grid:{display:false}}}}});
+
+// c16 - Closer revenue
+const cln=['Nathalia','Juliana','Jalai','Junior','IA','Lizandra'];
+const clv=[50940,43535,43001,41045,15417,7994];
+new Chart(document.getElementById('c16'),{type:'bar',data:{labels:cln,datasets:[{data:clv,backgroundColor:[PK,PK+'CC',PK+'AA',PK+'88',C,P],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+(v/1000).toFixed(0)+'K'}},x:{grid:{display:false}}}}});
+
+// c17 - Closer volume
+new Chart(document.getElementById('c17'),{type:'bar',data:{labels:cln,datasets:[{data:[36,35,32,34,10,4],backgroundColor:[PK,PK+'CC',PK+'AA',PK+'88',C,P],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1A351A'}},x:{grid:{display:false}}}}});
+
+// c18 - Closer ticket
+new Chart(document.getElementById('c18'),{type:'bar',data:{labels:cln,datasets:[{data:[1415,1244,1344,1207,1542,1999],backgroundColor:[PK,PK+'CC',PK+'AA',PK+'88',C,P],borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#1A351A'},ticks:{callback:v=>'R$'+v}},x:{grid:{display:false}}}}});
+
+// c19 - ROAS ranking
+const withR=D.filter(c=>c.rv>0).map(c=>({...c,roas:c.rv/c.sp})).sort((a,b)=>b.roas-a.roas);
+new Chart(document.getElementById('c19'),{type:'bar',data:{labels:withR.map(c=>c.s+' (R$'+Math.round(c.rv/1000)+'K)'),datasets:[{label:'ROAS',data:withR.map(c=>c.roas),backgroundColor:withR.map(c=>c.roas>=1?N:c.roas>=0.5?Y:R),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},annotation:{annotations:{line1:{type:'line',xMin:1,xMax:1,borderColor:N,borderWidth:2,borderDash:[5,5]}}}},scales:{x:{grid:{color:'#1A351A'},ticks:{callback:v=>v.toFixed(1)+'x'}},y:{grid:{display:false}}}}});
+</script>
+</body>
+</html>
