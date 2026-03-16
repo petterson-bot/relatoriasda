@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDA 2026 - Relatório Conta 04</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-main: #0A0F0A;
+  --bg-card: #111911;
+  --bg-card-alt: #1A2A1A;
+  --border: #1E3A1E;
+  --neon: #4AE54A;
+  --neon-dim: #2A8A2A;
+  --red: #FF3B3B;
+  --yellow: #FFD700;
+  --orange: #FF8C00;
+  --blue: #4A9EFF;
+  --white: #FFFFFF;
+  --gray: #8A9A8A;
+  --text: #E0E8E0;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg-main); color:var(--white); font-family:'Space Grotesk',sans-serif; overflow-x:hidden; }
+.container { max-width:1400px; margin:0 auto; padding:20px; }
+
+/* HEADER */
+.header { text-align:center; padding:30px 0 20px; border-bottom:1px solid var(--border); margin-bottom:30px; }
+.header h1 { font-size:28px; font-weight:700; color:var(--neon); letter-spacing:2px; text-transform:uppercase; }
+.header p { color:var(--gray); font-size:14px; margin-top:8px; }
+.header .period { color:var(--yellow); font-weight:600; }
+
+/* TABS */
+.tabs { display:flex; gap:8px; margin-bottom:25px; flex-wrap:wrap; justify-content:center; }
+.tab { padding:10px 20px; background:var(--bg-card); border:1px solid var(--border); border-radius:8px; cursor:pointer; color:var(--gray); font-weight:600; font-size:13px; transition:all .3s; }
+.tab:hover { border-color:var(--neon-dim); color:var(--white); }
+.tab.active { background:var(--neon); color:var(--bg-main); border-color:var(--neon); }
+
+/* PANELS */
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* KPI CARDS */
+.kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-bottom:25px; }
+.kpi { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:18px; text-align:center; }
+.kpi .label { font-size:11px; color:var(--gray); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.kpi .value { font-size:26px; font-weight:700; color:var(--neon); font-family:'JetBrains Mono',monospace; }
+.kpi .value.red { color:var(--red); }
+.kpi .value.yellow { color:var(--yellow); }
+.kpi .value.blue { color:var(--blue); }
+.kpi .sub { font-size:11px; color:var(--gray); margin-top:4px; }
+
+/* CHART WRAPPER */
+.chart-section { margin-bottom:30px; }
+.chart-section h3 { color:var(--neon); font-size:16px; margin-bottom:12px; padding-left:10px; border-left:3px solid var(--neon); }
+.chart-box { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:20px; }
+.chart-container { position:relative; height:350px; width:100%; }
+.chart-container.tall { height:450px; }
+
+/* TABLE */
+.table-wrap { overflow-x:auto; margin-bottom:20px; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { background:var(--bg-card-alt); color:var(--neon); padding:10px 12px; text-align:left; font-weight:600; white-space:nowrap; border-bottom:2px solid var(--border); }
+td { padding:9px 12px; border-bottom:1px solid var(--border); white-space:nowrap; }
+tr:nth-child(even) { background:rgba(26,42,26,0.3); }
+tr:hover { background:rgba(74,229,74,0.05); }
+.tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; }
+.tag-green { background:rgba(74,229,74,0.15); color:var(--neon); }
+.tag-red { background:rgba(255,59,59,0.15); color:var(--red); }
+.tag-yellow { background:rgba(255,215,0,0.15); color:var(--yellow); }
+.tag-blue { background:rgba(74,158,255,0.15); color:var(--blue); }
+
+/* INSIGHT BOXES */
+.insight { background:var(--bg-card); border-left:4px solid var(--neon); border-radius:0 10px 10px 0; padding:16px 20px; margin-bottom:15px; }
+.insight.warning { border-left-color:var(--yellow); }
+.insight.danger { border-left-color:var(--red); }
+.insight .title { font-weight:700; font-size:14px; margin-bottom:6px; }
+.insight .desc { color:var(--text); font-size:13px; line-height:1.5; }
+
+/* FUNNEL */
+.funnel { display:flex; flex-direction:column; align-items:center; gap:0; margin:25px 0; }
+.funnel-step { position:relative; text-align:center; padding:16px 30px; color:var(--white); font-weight:600; font-size:14px; }
+.funnel-step .num { font-size:24px; font-family:'JetBrains Mono',monospace; color:var(--neon); display:block; }
+.funnel-step .lbl { font-size:12px; color:var(--gray); }
+.funnel-arrow { color:var(--neon-dim); font-size:20px; }
+.funnel-rate { font-size:12px; color:var(--yellow); font-weight:600; }
+
+/* GRID */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media(max-width:768px) {
+  .grid-2 { grid-template-columns:1fr; }
+  .kpi-row { grid-template-columns:repeat(2,1fr); }
+  .chart-container { height:280px; }
+}
+
+/* WHATSAPP SECTION */
+.wa-badge { display:inline-flex; align-items:center; gap:6px; background:#25D366; color:#fff; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; margin-bottom:10px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📊 SDA 2026 — Relatório Conta 04</h1>
+    <p>Conta: act_377480853270622 · Samuel MKT - Principal</p>
+    <p class="period">Período: 14/02/2026 — 15/03/2026 (últimos 30 dias)</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('geral')">Visão Geral</div>
+    <div class="tab" onclick="showTab('campanhas')">Campanhas</div>
+    <div class="tab" onclick="showTab('funil')">Funil de Leads</div>
+    <div class="tab" onclick="showTab('whatsapp')">WhatsApp</div>
+    <div class="tab" onclick="showTab('insights')">Insights & Ações</div>
+  </div>
+
+  <!-- VISÃO GERAL -->
+  <div class="panel active" id="panel-geral">
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">Gasto Total</div><div class="value">R$ 85.016</div><div class="sub">12 campanhas ativas</div></div>
+      <div class="kpi"><div class="label">Impressões</div><div class="value blue">2.9M</div><div class="sub">Alcance: 945K</div></div>
+      <div class="kpi"><div class="label">Cliques Totais</div><div class="value">61.5K</div><div class="sub">Link clicks: 42.8K</div></div>
+      <div class="kpi"><div class="label">Leads (Pixel)</div><div class="value yellow">2.397</div><div class="sub">CPL Médio: R$ 14,85</div></div>
+      <div class="kpi"><div class="label">Compras (Pixel)</div><div class="value">96</div><div class="sub">CPA: R$ 885,58</div></div>
+      <div class="kpi"><div class="label">Init. Checkout</div><div class="value">397</div><div class="sub">CPA: R$ 214,14</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-box">
+        <h3 style="color:var(--neon);font-size:15px;margin-bottom:12px;padding-left:10px;border-left:3px solid var(--neon);">Distribuição de Gasto por Campanha</h3>
+        <div class="chart-container"><canvas id="chartSpend"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3 style="color:var(--neon);font-size:15px;margin-bottom:12px;padding-left:10px;border-left:3px solid var(--neon);">Eficiência: CPC por Campanha</h3>
+        <div class="chart-container"><canvas id="chartCPC"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <h3 style="color:var(--neon);font-size:15px;margin-bottom:12px;padding-left:10px;border-left:3px solid var(--neon);">Comparativo: Leads vs Compras vs Checkout por Tipo de Campanha</h3>
+      <div class="chart-container tall"><canvas id="chartConversions"></canvas></div>
+    </div>
+  </div>
+
+  <!-- CAMPANHAS -->
+  <div class="panel" id="panel-campanhas">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Campanha</th>
+            <th>Objetivo</th>
+            <th>Status</th>
+            <th>Gasto</th>
+            <th>Impressões</th>
+            <th>Cliques</th>
+            <th>CTR</th>
+            <th>CPC</th>
+            <th>CPM</th>
+            <th>Leads</th>
+            <th>CPL</th>
+            <th>Compras</th>
+            <th>CPA Compra</th>
+          </tr>
+        </thead>
+        <tbody id="tblCampaigns"></tbody>
+      </table>
+    </div>
+
+    <div class="chart-box" style="margin-top:20px">
+      <h3 style="color:var(--neon);font-size:15px;margin-bottom:12px;padding-left:10px;border-left:3px solid var(--neon);">CTR por Campanha (%)</h3>
+      <div class="chart-container tall"><canvas id="chartCTR"></canvas></div>
+    </div>
+  </div>
+
+  <!-- FUNIL DE LEADS -->
+  <div class="panel" id="panel-funil">
+    <div class="chart-box">
+      <h3 style="color:var(--neon);font-size:15px;margin-bottom:12px;padding-left:10px;border-left:3px solid var(--neon);">Funil de Conversão — Da Impressão à Compra</h3>
+      <div class="chart-container tall"><canvas id="chartFunnel"></canvas></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-box">
+        <h3 style="color:var(--neon);font-size:15px;margin-bottom:12px;padding-left:10px;border-left:3px solid var(--neon);">Taxa de Conversão por Etapa</h3>
+        <div class="chart-container"><canvas id="chartRates"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3 style="color:var(--neon);font-size:15px;margin-bottom:12px;padding-left:10px;border-left:3px solid var(--neon);">Custo por Etapa do Funil</h3>
+        <div class="chart-container"><canvas id="chartCostFunnel"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <h3 style="color:var(--neon);font-size:15px;margin-bottom:12px;padding-left:10px;border-left:3px solid var(--neon);">Leads por Tipo de Campanha</h3>
+      <div class="chart-container"><canvas id="chartLeadType"></canvas></div>
+    </div>
+  </div>
+
+  <!-- WHATSAPP -->
+  <div class="panel" id="panel-whatsapp">
+    <div class="wa-badge">💬 Análise WhatsApp</div>
+    
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">Gasto WhatsApp (Ativa)</div><div class="value red">R$ 5.362</div><div class="sub">Campanha: Quente ABO WA</div></div>
+      <div class="kpi"><div class="label">Conexões Messaging</div><div class="value">193</div><div class="sub">CPA: R$ 27,79</div></div>
+      <div class="kpi"><div class="label">Conversas Iniciadas</div><div class="value yellow">154</div><div class="sub">CPA: R$ 34,82</div></div>
+      <div class="kpi"><div class="label">Respostas (1ª Reply)</div><div class="value">125</div><div class="sub">CPA: R$ 42,90</div></div>
+      <div class="kpi"><div class="label">Mensagem Profunda (2+)</div><div class="value">79</div><div class="sub">CPA: R$ 67,88</div></div>
+      <div class="kpi"><div class="label">Compras via WA</div><div class="value red">3</div><div class="sub">CPA: R$ 1.787,52</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-box">
+        <h3 style="color:var(--neon);font-size:15px;margin-bottom:12px;padding-left:10px;border-left:3px solid var(--neon);">Funil WhatsApp — Drop-off por Etapa</h3>
+        <div class="chart-container"><canvas id="chartWAFunnel"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3 style="color:var(--neon);font-size:15px;margin-bottom:12px;padding-left:10px;border-left:3px solid var(--neon);">WhatsApp vs Formulário vs Checkout — CPA Compra</h3>
+        <div class="chart-container"><canvas id="chartWACompare"></canvas></div>
+      </div>
+    </div>
+
+    <div class="insight danger">
+      <div class="title">⚠️ ALERTA: WhatsApp Ativa — ROI Negativo</div>
+      <div class="desc">
+        A campanha de WhatsApp ativa gastou R$ 5.362 e gerou apenas <strong>3 compras</strong> (CPA: R$ 1.787). 
+        Das 193 conexões de mensagem, apenas <strong>1,5% converteram em compra</strong>. 
+        O funil é longo: Conexão → Conversa → Resposta → Engajamento profundo → Compra, com <strong>perdas significativas em cada etapa</strong>.
+        <br><br>
+        <strong>Comparação direta:</strong> Campanha Checkout Quente ABO gerou 33 compras a R$ 684/CPA com R$ 22.593 investidos — <strong>2,6x mais eficiente</strong> por compra.
+      </div>
+    </div>
+
+    <div class="insight warning">
+      <div class="title">📊 Diagnóstico: Volume de Leads Sem Conversão</div>
+      <div class="desc">
+        Das campanhas de formulário ativo, os leads acumulados somam <strong>2.397 leads</strong> a CPL médio de R$ 14,85 — número aparentemente saudável. 
+        Porém, a conversão de lead para compra é <strong>inferior a 4%</strong>, indicando que a qualidade do lead ou o processo de nurturing comercial precisa de ajustes.
+        O WhatsApp agrava isso: apesar de gerar engajamento (79 mensagens profundas), a taxa de fechamento é quase nula.
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="title">✅ Recomendação</div>
+      <div class="desc">
+        1. <strong>Reduzir orçamento de WhatsApp</strong> ou redirecionar para campanhas de Checkout direto que convertem a CPA menor.<br>
+        2. <strong>Testar qualificação via formulário</strong> antes do WhatsApp — já existe a campanha de TesteQualificação (pausada) com CPL de R$ 5,00 e 151 leads.<br>
+        3. <strong>Escalar campanhas de Checkout Quente ABO</strong> que demonstram o melhor CPA de compra (R$ 684).<br>
+        4. <strong>Advantage+Lista CBO</strong> também performa bem: 7 compras a R$ 437/CPA — candidata a escala.
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="panel" id="panel-insights">
+    <h3 style="color:var(--neon);font-size:18px;margin-bottom:20px;">📋 Insights Mensuráveis & Recomendações</h3>
+
+    <div class="insight">
+      <div class="title">🏆 TOP PERFORMER: Checkout Advantage CBO (Teste04)</div>
+      <div class="desc">
+        <strong>14 compras · CPA R$ 561 · ROAS estimado 3.2x</strong><br>
+        Melhor CPA de compra entre as campanhas de venda ativas. CTR de 5,37% (o maior da conta). 
+        Público Advantage+ identificando automaticamente compradores. <strong>AÇÃO: Aumentar budget em 30%.</strong>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="title">🚀 ESCALAR: Checkout Quente ABO</div>
+      <div class="desc">
+        <strong>33 compras · CPA R$ 684 · R$ 22.593 investidos</strong><br>
+        Maior volume de compras na conta. CPA aceitável considerando ticket médio do evento. 
+        189 inícios de checkout = taxa checkout→compra de 17,5%. <strong>AÇÃO: Manter orçamento, testar novos criativos para reduzir CPA.</strong>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="title">🎯 MELHOR CPL: Frio ABO Teste03</div>
+      <div class="desc">
+        <strong>621 leads · CPL R$ 13,72 · R$ 8.520 investidos</strong><br>
+        Melhor CPL entre campanhas de público frio. CTR de 2,09%. Alcance de 225K pessoas.
+        <strong>AÇÃO: Cruzar com planilha comercial para verificar taxa de conversão real desses leads.</strong>
+      </div>
+    </div>
+
+    <div class="insight warning">
+      <div class="title">⚡ OPORTUNIDADE: Formulário Quente (TesteQualificação)</div>
+      <div class="desc">
+        <strong>151 leads qualificados · CPL R$ 5,00 · PAUSADA</strong><br>
+        Melhor CPL absoluto da conta inteira. Formulário com qualificação filtra leads melhores.
+        <strong>AÇÃO: REATIVAR e escalar — potencial de gerar leads 3x mais baratos que a média.</strong>
+      </div>
+    </div>
+
+    <div class="insight danger">
+      <div class="title">🛑 PAUSAR: WhatsApp Quente ABO (Ativa)</div>
+      <div class="desc">
+        <strong>3 compras · CPA R$ 1.787 · R$ 5.362 gastos</strong><br>
+        CPA de compra 2,6x maior que Checkout Quente. Funil muito longo com perdas em cada etapa. 
+        Taxa de conversão messaging→compra de apenas 1,5%.
+        <strong>AÇÃO: Pausar ou reduzir budget para R$ 50/dia como teste.</strong>
+      </div>
+    </div>
+
+    <div class="insight danger">
+      <div class="title">🛑 DESPERDÍCIO: Visita Perfil (Lembrete)</div>
+      <div class="desc">
+        <strong>R$ 7.240 gastos · ZERO compras · ZERO leads</strong><br>
+        Campanha de tráfego para perfil do Instagram. 1.2M impressões mas sem nenhuma conversão mensurável.
+        <strong>AÇÃO: Pausar imediatamente — reallocar budget para campanhas de conversão.</strong>
+      </div>
+    </div>
+
+    <div class="chart-box" style="margin-top:25px">
+      <h3 style="color:var(--neon);font-size:15px;margin-bottom:12px;padding-left:10px;border-left:3px solid var(--neon);">Ranking: CPA de Compra por Campanha (quanto menor, melhor)</h3>
+      <div class="chart-container tall"><canvas id="chartCPAPurchase"></canvas></div>
+    </div>
+
+    <div class="chart-box">
+      <h3 style="color:var(--neon);font-size:15px;margin-bottom:12px;padding-left:10px;border-left:3px solid var(--neon);">Eficiência do Budget: Gasto vs Compras</h3>
+      <div class="chart-container"><canvas id="chartEfficiency"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<script>
+Chart.defaults.color = '#8A9A8A';
+Chart.defaults.borderColor = '#1E3A1E';
+Chart.defaults.font.family = "'JetBrains Mono', monospace";
+Chart.defaults.font.size = 11;
+
+// ====== DATA ======
+const campaigns = [
+  {name:'VIP-PLATINUM CBO', shortName:'VIP-PLAT', obj:'SALES', status:'ACTIVE', spend:1544.37, impr:13723, clicks:189, ctr:1.38, cpc:8.17, cpm:112.54, leads:0, cpl:0, purchases:0, cpaPurch:0, checkouts:9, msgConn:1},
+  {name:'Frio ABO Teste06', shortName:'Frio T06', obj:'LEADS', status:'ACTIVE', spend:4691.74, impr:63627, clicks:1713, ctr:2.69, cpc:2.74, cpm:73.74, leads:138, cpl:34.00, purchases:1, cpaPurch:4691.74, checkouts:4, msgConn:1},
+  {name:'Advantage Lista CBO T05', shortName:'Adv. Lista', obj:'SALES', status:'ACTIVE', spend:3063.99, impr:30612, clicks:898, ctr:2.93, cpc:3.41, cpm:100.09, leads:3, cpl:1021.33, purchases:7, cpaPurch:437.71, checkouts:17, msgConn:3},
+  {name:'Formulário TesteQualif.', shortName:'Form Qual', obj:'LEADS', status:'PAUSED', spend:755.24, impr:37996, clicks:678, ctr:1.78, cpc:1.11, cpm:19.88, leads:151, cpl:5.00, purchases:0, cpaPurch:0, checkouts:1, msgConn:21},
+  {name:'Formulário TesteCriativo', shortName:'Form Criat', obj:'LEADS', status:'ACTIVE', spend:3072.46, impr:117226, clicks:2187, ctr:1.87, cpc:1.40, cpm:26.21, leads:435, cpl:7.06, purchases:0, cpaPurch:0, checkouts:2, msgConn:81},
+  {name:'Visita Perfil (Lembrete)', shortName:'Vis. Perfil', obj:'TRAFFIC', status:'ACTIVE', spend:7240.33, impr:1215598, clicks:19319, ctr:1.59, cpc:0.37, cpm:5.96, leads:0, cpl:0, purchases:0, cpaPurch:0, checkouts:0, msgConn:2},
+  {name:'Checkout Quente ABO', shortName:'CK Quente', obj:'SALES', status:'ACTIVE', spend:22593.01, impr:392053, clicks:4997, ctr:1.27, cpc:4.52, cpm:57.63, leads:14, cpl:1613.79, purchases:33, cpaPurch:684.64, checkouts:189, msgConn:29},
+  {name:'Lista Espera Frio ABO', shortName:'LE Frio', obj:'LEADS', status:'ACTIVE', spend:955.71, impr:36088, clicks:1127, ctr:3.12, cpc:0.85, cpm:26.48, leads:58, cpl:16.48, purchases:0, cpaPurch:0, checkouts:1, msgConn:0},
+  {name:'Lista Espera Quente ABO', shortName:'LE Quente', obj:'LEADS', status:'ACTIVE', spend:818.68, impr:43163, clicks:924, ctr:2.14, cpc:0.89, cpm:18.97, leads:29, cpl:28.23, purchases:0, cpaPurch:0, checkouts:3, msgConn:1},
+  {name:'Formulário Quente ABO', shortName:'Form Quente', obj:'LEADS', status:'ACTIVE', spend:10428.62, impr:308243, clicks:4329, ctr:1.40, cpc:2.41, cpm:33.83, leads:647, cpl:16.12, purchases:3, cpaPurch:3476.21, checkouts:36, msgConn:105},
+  {name:'WhatsApp Quente ABO (Ativa)', shortName:'WA Quente', obj:'TRAFFIC', status:'ACTIVE', spend:5362.57, impr:90533, clicks:1177, ctr:1.30, cpc:4.56, cpm:59.23, leads:6, cpl:893.76, purchases:3, cpaPurch:1787.52, checkouts:30, msgConn:193},
+  {name:'WhatsApp Quente ABO (Pausada)', shortName:'WA Pausada', obj:'TRAFFIC', status:'PAUSED', spend:90.20, impr:15102, clicks:167, ctr:1.11, cpc:0.54, cpm:5.97, leads:0, cpl:0, purchases:0, cpaPurch:0, checkouts:0, msgConn:0},
+  {name:'Advantage CBO Teste04', shortName:'Adv. T04', obj:'SALES', status:'ACTIVE', spend:7861.72, impr:225676, clicks:12109, ctr:5.37, cpc:0.65, cpm:34.84, leads:12, cpl:655.14, purchases:14, cpaPurch:561.55, checkouts:88, msgConn:9},
+  {name:'Quente ABO Teste02', shortName:'Quente T02', obj:'LEADS', status:'ACTIVE', spend:8122.83, impr:273355, clicks:4824, ctr:1.76, cpc:1.68, cpm:29.72, leads:296, cpl:27.44, purchases:6, cpaPurch:1353.81, checkouts:16, msgConn:7},
+  {name:'Frio ABO Teste03', shortName:'Frio T03', obj:'LEADS', status:'ACTIVE', spend:8520.52, impr:389013, clicks:8136, ctr:2.09, cpc:1.05, cpm:21.90, leads:621, cpl:13.72, purchases:3, cpaPurch:2840.17, checkouts:16, msgConn:10},
+];
+
+// ====== TABS ======
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ====== CAMPAIGN TABLE ======
+const tbody = document.getElementById('tblCampaigns');
+campaigns.forEach(c => {
+  const statusTag = c.status === 'ACTIVE' ? '<span class="tag tag-green">ATIVO</span>' : '<span class="tag tag-yellow">PAUSADO</span>';
+  const objTag = c.obj === 'SALES' ? '<span class="tag tag-blue">VENDAS</span>' : c.obj === 'LEADS' ? '<span class="tag tag-green">LEADS</span>' : '<span class="tag tag-yellow">TRÁFEGO</span>';
+  tbody.innerHTML += `<tr>
+    <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis" title="${c.name}">${c.shortName}</td>
+    <td>${objTag}</td>
+    <td>${statusTag}</td>
+    <td>R$ ${c.spend.toLocaleString('pt-BR',{minimumFractionDigits:0})}</td>
+    <td>${(c.impr/1000).toFixed(1)}K</td>
+    <td>${c.clicks.toLocaleString()}</td>
+    <td>${c.ctr.toFixed(2)}%</td>
+    <td>R$ ${c.cpc.toFixed(2)}</td>
+    <td>R$ ${c.cpm.toFixed(2)}</td>
+    <td>${c.leads}</td>
+    <td>${c.cpl > 0 ? 'R$ '+c.cpl.toFixed(2) : '-'}</td>
+    <td style="color:${c.purchases > 0 ? '#4AE54A' : '#FF3B3B'}">${c.purchases}</td>
+    <td>${c.cpaPurch > 0 ? 'R$ '+c.cpaPurch.toFixed(0) : '-'}</td>
+  </tr>`;
+});
+
+// ====== CHARTS ======
+const neon = '#4AE54A';
+const neonAlpha = 'rgba(74,229,74,0.6)';
+const red = '#FF3B3B';
+const yellow = '#FFD700';
+const blue = '#4A9EFF';
+const orange = '#FF8C00';
+
+// 1. Spend Distribution
+new Chart(document.getElementById('chartSpend'), {
+  type: 'doughnut',
+  data: {
+    labels: campaigns.map(c=>c.shortName),
+    datasets: [{
+      data: campaigns.map(c=>c.spend),
+      backgroundColor: ['#1a5c1a','#2a7a2a','#3a9a3a','#4AE54A','#5af55a','#FFD700','#FF8C00','#FF3B3B','#4A9EFF','#7a4aff','#25D366','#888','#00CED1','#FF69B4','#9370DB'],
+      borderColor: '#0A0F0A', borderWidth: 2
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins: {
+      legend: { position:'right', labels:{font:{size:10}, padding:8, boxWidth:12} },
+      tooltip: { callbacks: { label: ctx => `${ctx.label}: R$ ${ctx.parsed.toLocaleString('pt-BR',{minimumFractionDigits:0})}` } }
+    }
+  }
+});
+
+// 2. CPC by Campaign
+const sortedCPC = [...campaigns].sort((a,b)=>a.cpc-b.cpc);
+new Chart(document.getElementById('chartCPC'), {
+  type: 'bar',
+  data: {
+    labels: sortedCPC.map(c=>c.shortName),
+    datasets: [{
+      label:'CPC (R$)',
+      data: sortedCPC.map(c=>c.cpc),
+      backgroundColor: sortedCPC.map(c=>c.cpc>4?red:c.cpc>2?yellow:neon),
+      borderRadius: 4
+    }]
+  },
+  options: { responsive:true, maintainAspectRatio:false, indexAxis:'y',
+    plugins:{legend:{display:false}},
+    scales:{x:{grid:{color:'#1E3A1E'}},y:{grid:{display:false}}}
+  }
+});
+
+// 3. Conversions by Campaign Type
+const salesCamps = campaigns.filter(c=>c.obj==='SALES');
+const leadCamps = campaigns.filter(c=>c.obj==='LEADS');
+const trafficCamps = campaigns.filter(c=>c.obj==='TRAFFIC');
+new Chart(document.getElementById('chartConversions'), {
+  type: 'bar',
+  data: {
+    labels: ['Campanhas de VENDA', 'Campanhas de LEAD', 'Campanhas de TRÁFEGO'],
+    datasets: [
+      {label:'Compras', data:[
+        salesCamps.reduce((s,c)=>s+c.purchases,0),
+        leadCamps.reduce((s,c)=>s+c.purchases,0),
+        trafficCamps.reduce((s,c)=>s+c.purchases,0)
+      ], backgroundColor:neon, borderRadius:4},
+      {label:'Checkouts', data:[
+        salesCamps.reduce((s,c)=>s+c.checkouts,0),
+        leadCamps.reduce((s,c)=>s+c.checkouts,0),
+        trafficCamps.reduce((s,c)=>s+c.checkouts,0)
+      ], backgroundColor:yellow, borderRadius:4},
+      {label:'Leads', data:[
+        salesCamps.reduce((s,c)=>s+c.leads,0),
+        leadCamps.reduce((s,c)=>s+c.leads,0),
+        trafficCamps.reduce((s,c)=>s+c.leads,0)
+      ], backgroundColor:blue, borderRadius:4},
+    ]
+  },
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{labels:{font:{size:11}}}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'#1E3A1E'}}}
+  }
+});
+
+// 4. CTR
+const sortedCTR = [...campaigns].sort((a,b)=>b.ctr-a.ctr);
+new Chart(document.getElementById('chartCTR'), {
+  type: 'bar',
+  data: {
+    labels: sortedCTR.map(c=>c.shortName),
+    datasets: [{
+      label:'CTR %',
+      data: sortedCTR.map(c=>c.ctr),
+      backgroundColor: sortedCTR.map(c=>c.ctr>3?neon:c.ctr>2?yellow:c.ctr>1.5?orange:red),
+      borderRadius: 4
+    }]
+  },
+  options: { responsive:true, maintainAspectRatio:false, indexAxis:'y',
+    plugins:{legend:{display:false}},
+    scales:{x:{grid:{color:'#1E3A1E'}},y:{grid:{display:false}}}
+  }
+});
+
+// 5. Funnel
+const totalImpr = campaigns.reduce((s,c)=>s+c.impr,0);
+const totalClicks = campaigns.reduce((s,c)=>s+c.clicks,0);
+const totalLeads = campaigns.reduce((s,c)=>s+c.leads,0);
+const totalCheckouts = campaigns.reduce((s,c)=>s+c.checkouts,0);
+const totalPurchases = campaigns.reduce((s,c)=>s+c.purchases,0);
+
+new Chart(document.getElementById('chartFunnel'), {
+  type: 'bar',
+  data: {
+    labels: ['Impressões','Cliques','Leads','Início Checkout','Compras'],
+    datasets: [{
+      data: [totalImpr, totalClicks, totalLeads, totalCheckouts, totalPurchases],
+      backgroundColor: [neon+'33', neon+'55', neon+'88', neon+'BB', neon],
+      borderColor: neon,
+      borderWidth: 1,
+      borderRadius: 6
+    }]
+  },
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed.y.toLocaleString()}`}}
+    },
+    scales:{y:{type:'logarithmic',grid:{color:'#1E3A1E'}},x:{grid:{display:false}}}
+  }
+});
+
+// 6. Conversion Rates
+new Chart(document.getElementById('chartRates'), {
+  type: 'bar',
+  data: {
+    labels: ['Impr→Click','Click→Lead','Lead→Checkout','Checkout→Compra'],
+    datasets: [{
+      data: [
+        (totalClicks/totalImpr*100).toFixed(2),
+        (totalLeads/totalClicks*100).toFixed(2),
+        (totalCheckouts/totalLeads*100).toFixed(2),
+        (totalPurchases/totalCheckouts*100).toFixed(2)
+      ],
+      backgroundColor: [neon, yellow, orange, red],
+      borderRadius: 6
+    }]
+  },
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>ctx.parsed.y+'%'}}
+    },
+    scales:{y:{grid:{color:'#1E3A1E'},ticks:{callback:v=>v+'%'}},x:{grid:{display:false}}}
+  }
+});
+
+// 7. Cost per Funnel Stage
+const totalSpend = campaigns.reduce((s,c)=>s+c.spend,0);
+new Chart(document.getElementById('chartCostFunnel'), {
+  type: 'bar',
+  data: {
+    labels: ['CPM','CPC','CPL','CPA Checkout','CPA Compra'],
+    datasets: [{
+      data: [
+        (totalSpend/totalImpr*1000).toFixed(2),
+        (totalSpend/totalClicks).toFixed(2),
+        (totalSpend/totalLeads).toFixed(2),
+        (totalSpend/totalCheckouts).toFixed(2),
+        (totalSpend/totalPurchases).toFixed(2)
+      ],
+      backgroundColor: [neon+'55', neon+'77', yellow, orange, red],
+      borderRadius: 6
+    }]
+  },
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>'R$ '+parseFloat(ctx.parsed.y).toLocaleString('pt-BR',{minimumFractionDigits:2})}}
+    },
+    scales:{y:{type:'logarithmic',grid:{color:'#1E3A1E'},ticks:{callback:v=>'R$ '+v}},x:{grid:{display:false}}}
+  }
+});
+
+// 8. Leads by Campaign Type
+new Chart(document.getElementById('chartLeadType'), {
+  type: 'pie',
+  data: {
+    labels: ['Formulário Quente', 'Frio ABO T03', 'Form TesteCriativo', 'Quente ABO T02', 'Form Qualif.', 'Frio ABO T06', 'Lista Espera', 'Outros'],
+    datasets: [{
+      data: [647, 621, 435, 296, 151, 138, 87, 22],
+      backgroundColor: [neon,'#2a8a2a',yellow,orange,blue,'#9370DB','#00CED1','#888'],
+      borderColor:'#0A0F0A', borderWidth:2
+    }]
+  },
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'right',labels:{font:{size:10},padding:8,boxWidth:12}}}
+  }
+});
+
+// 9. WhatsApp Funnel
+new Chart(document.getElementById('chartWAFunnel'), {
+  type: 'bar',
+  data: {
+    labels: ['Impressões','Cliques','Conexão MSG','Conversa','1ª Resposta','MSG Profunda','Compra'],
+    datasets: [{
+      data: [90533, 1177, 193, 154, 125, 79, 3],
+      backgroundColor: ['#25D36633','#25D36655','#25D36677','#25D36699','#25D366BB','#25D366DD','#25D366'],
+      borderColor: '#25D366',
+      borderWidth: 1,
+      borderRadius: 4
+    }]
+  },
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{y:{type:'logarithmic',grid:{color:'#1E3A1E'}},x:{grid:{display:false},ticks:{font:{size:9}}}}
+  }
+});
+
+// 10. WA vs Form vs Checkout CPA comparison
+new Chart(document.getElementById('chartWACompare'), {
+  type: 'bar',
+  data: {
+    labels: ['WhatsApp Quente','Checkout Quente','Advantage CBO T04','Advantage Lista'],
+    datasets: [
+      {label:'CPA Compra (R$)', data:[1787.52, 684.64, 561.55, 437.71], backgroundColor:[red, yellow, neon, blue], borderRadius:6},
+      {label:'Compras', data:[3, 33, 14, 7], backgroundColor:['#FF3B3B55','#FFD70055',neon+'55',blue+'55'], borderRadius:6}
+    ]
+  },
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{labels:{font:{size:11}}}},
+    scales:{y:{grid:{color:'#1E3A1E'},ticks:{callback:v=>'R$ '+v}},x:{grid:{display:false}}}
+  }
+});
+
+// 11. CPA Purchase Ranking
+const withPurchases = campaigns.filter(c=>c.purchases>0).sort((a,b)=>a.cpaPurch-b.cpaPurch);
+new Chart(document.getElementById('chartCPAPurchase'), {
+  type: 'bar',
+  data: {
+    labels: withPurchases.map(c=>c.shortName+' ('+c.purchases+'x)'),
+    datasets: [{
+      label:'CPA Compra (R$)',
+      data: withPurchases.map(c=>c.cpaPurch),
+      backgroundColor: withPurchases.map(c=>c.cpaPurch<700?neon:c.cpaPurch<1500?yellow:red),
+      borderRadius: 6
+    }]
+  },
+  options: { responsive:true, maintainAspectRatio:false, indexAxis:'y',
+    plugins:{legend:{display:false}},
+    scales:{x:{grid:{color:'#1E3A1E'},ticks:{callback:v=>'R$ '+v}},y:{grid:{display:false}}}
+  }
+});
+
+// 12. Efficiency: Spend vs Purchases (bubble)
+new Chart(document.getElementById('chartEfficiency'), {
+  type: 'scatter',
+  data: {
+    datasets: campaigns.filter(c=>c.purchases>0).map(c=>({
+      label: c.shortName,
+      data: [{x:c.spend, y:c.purchases, r:Math.max(c.purchases*2, 6)}],
+      backgroundColor: c.cpaPurch<700?neon+'AA':c.cpaPurch<1500?yellow+'AA':red+'AA',
+      borderColor: c.cpaPurch<700?neon:c.cpaPurch<1500?yellow:red,
+      borderWidth: 2
+    }))
+  },
+  options: { responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{labels:{font:{size:10}},position:'right'}},
+    scales:{
+      x:{title:{display:true,text:'Gasto (R$)',color:'#8A9A8A'},grid:{color:'#1E3A1E'},ticks:{callback:v=>'R$ '+v.toLocaleString()}},
+      y:{title:{display:true,text:'Compras',color:'#8A9A8A'},grid:{color:'#1E3A1E'}}
+    }
+  }
+});
+</script>
+</body>
+</html>
